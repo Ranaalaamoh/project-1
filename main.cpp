@@ -1,7 +1,7 @@
 #include <iostream>
 #include <filesystem>
 #include <string>
-
+#include <windows.h>
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -21,7 +21,7 @@ void FileOrganize(const string &path) {
     fs::create_directory(other);
 
     for (const auto &file : fs::directory_iterator(dir)) {
-        if (fs::is_regular_file(file)) {  // Ensure that it's a file
+        if (fs::is_regular_file(file)) {
             string ext = file.path().extension().string();
 
             fs::path destination;
@@ -36,9 +36,12 @@ void FileOrganize(const string &path) {
             }
 
 
+            fs::rename(file.path(), destination);
         }
     }
 
+
+    ShellExecute(NULL, "explore", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
 int main() {
@@ -48,3 +51,4 @@ int main() {
     FileOrganize(path);
     return 0;
 }
+
