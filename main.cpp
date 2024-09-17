@@ -2,17 +2,19 @@
 #include <filesystem>
 #include <string>
 #include <windows.h>
+#include<fstream>
 
 using namespace std;
 namespace fs = std::filesystem;
 
-void FileOrganize(const string &path) {
+void FileOrganize(const string &path , string &img , string & docm , string &vids) {
     fs::path dir(path);
+    ofstream fs("data.txt");
 
 
-    fs::path images = dir / "images";
-    fs::path doc = dir / "doc";
-    fs::path vid = dir / "vid";
+    fs::path images = dir / img;
+    fs::path doc = dir / docm;
+    fs::path vid = dir / vids;
     fs::path other = dir / "other";
 
     fs::create_directory(images);
@@ -45,10 +47,59 @@ void FileOrganize(const string &path) {
 }
 
 int main() {
-    string path;
-    cout << "Enter the path: ";
-    getline(cin, path);
-    FileOrganize(path);
-    return 0;
-}
+
+        string path, img, doc, vids;
+
+        cout << "Enter the path: ";
+        getline(cin, path);
+
+        cout << "[0] to modify settings" << endl << "[1] to organize a directory" << endl;
+        cout << "Note: choose 1 if this is your first time: ";
+
+        int x;
+        cin >> x;
+        cin.ignore();
+
+        if (x == 0) {
+
+            cout << "Enter image directory name: ";
+            getline(cin, img);
+            cout << "Enter document directory name: ";
+            getline(cin, doc);
+            cout << "Enter video directory name: ";
+            getline(cin, vids);
+
+            ofstream fs("data.csv");
+            if (!fs) {
+                cout << "Error opening data.csv for writing." << endl;
+                return 1;
+            }
+            fs << img << endl << doc << endl << vids << endl;
+            fs.close();
+        } else
+        {
+            ifstream file("data.csv");
+            if (!file) {
+                cout << "Error opening data.csv for reading." << endl;
+                return 1;
+            }
+
+            string line;
+            int lineCount = 0;
+            while (getline(file, line)) {
+                if (lineCount == 0) {
+                    img = line;
+                } else if (lineCount == 1) {
+                    doc = line;
+                } else if (lineCount == 2) {
+                    vids = line;
+                }
+                lineCount++;
+            }
+            file.close();
+        }
+
+    FileOrganize(path, img, doc, vids);
+        return 0;
+    }
 
